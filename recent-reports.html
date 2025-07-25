@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recent Reports - GreenPulse</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-image: url('https://images5.alphacoders.com/132/1323577.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-gray-800">
+
+  <!-- Overlay to make content readable over background -->
+  <div class="bg-white bg-opacity-80 min-h-screen">
+    
+    <!-- Header -->
+    <header class="bg-white bg-opacity-90 shadow p-4 flex items-center sticky top-0 z-10">
+      <!-- Back Button on Left -->
+      <a href="dashboard.html" class="text-green-700 font-medium hover:text-green-900 flex items-center">
+        ← Back
+      </a>
+      <h1 class="text-2xl font-semibold text-green-600 mx-auto">🕒 Your Recent Reports</h1>
+    </header>
+
+    <!-- Reports Container -->
+    <main class="p-6 space-y-6" id="reportsContainer">
+      <p class="text-gray-600">Loading your reports...</p>
+    </main>
+
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const userId = "test_user_123"; // use auth.currentUser.uid in real app
+    const reportsContainer = document.getElementById("reportsContainer");
+
+    db.collection("reports")
+      .where("userId", "==", userId)
+      .orderBy("timestamp", "desc")
+      .onSnapshot(snapshot => {
+        reportsContainer.innerHTML = "";
+
+        if (snapshot.empty) {
+          reportsContainer.innerHTML = "<p class='text-red-500'>No reports found.</p>";
+          return;
+        }
+
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const date = new Date(data.timestamp?.seconds * 1000);
+          const statusColor = {
+            "Pending": "text-yellow-600",
+            "Resolved": "text-green-600",
+            "Failed": "text-red-600"
+          }[data.status] || "text-gray-600";
+
+          const images = data.images?.map(url =>
+            `<img src="${url}" class="h-24 w-24 object-cover rounded border" alt="Report Image" />`
+          ).join("") || "";
+
+          reportsContainer.innerHTML += `
+            <div class="bg-white bg-opacity-90 shadow-md rounded-lg p-4">
+              <div class="flex items-center justify-between mb-2">
+                <div class="font-semibold">${data.address || "No address provided"}</div>
+                <div class="${statusColor} font-bold">${data.status || "Unknown"}</div>
+              </div>
+              <div class="flex gap-2 overflow-x-auto pb-2">
+                ${images}
+              </div>
+              <div class="text-sm text-gray-500 mt-2">${date.toLocaleDateString()} ${date.toLocaleTimeString()}</div>
+            </div>
+          `;
+        });
+      });
+  </script>
+</body>
+</html>

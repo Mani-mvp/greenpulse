@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Report an Issue</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: url('https://cdn-editing-temp.picsart.com/editing-temp-landings/306c9a38-03f0-49d4-99d2-4c36afab99f7.jpeg') no-repeat center center/cover;
+      color: #333;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      position: relative;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    select, input[type="text"], textarea, input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    .drop-zone {
+      border: 2px dashed #aaa;
+      padding: 20px;
+      text-align: center;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    .btn {
+      background-color: #28a745;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+    }
+
+    .btn:hover {
+      background-color: #218838;
+    }
+
+    .success-msg {
+      text-align: center;
+      margin-top: 20px;
+      color: green;
+      font-size: 18px;
+    }
+
+    .info, .warning {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .warning {
+      color: red;
+      font-size: 15px;
+    }
+
+    .photo-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .photo-preview div {
+      position: relative;
+    }
+
+    .photo-preview img {
+      height: 80px;
+      width: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .photo-preview button {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: red;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      background-color: #007bff;
+      color: white;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .back-btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Top Back Button -->
+    <button class="back-btn" onclick="window.location.href='dashboard.html'">← Back</button>
+
+    <h2>Report an Environmental Issue</h2>
+    <form id="reportForm">
+      <label for="description">Issue Description:</label>
+      <select id="description" required>
+        <option value="">Select an issue</option>
+        <option value="Garbage">Garbage</option>
+        <option value="Drainage">Drainage</option>
+        <option value="Sewage">Sewage</option>
+        <option value="Air Pollution">Air Pollution</option>
+        <option value="Others">Others</option>
+      </select>
+
+      <label for="images">Upload Images (1-5):</label>
+      <input type="file" id="images" accept="image/*" capture="environment" multiple />
+
+      <div class="drop-zone" id="dropZone">
+        📤 Drag & Drop Images Here
+      </div>
+
+      <div class="photo-preview" id="previewContainer"></div>
+      <div class="info" id="photoCount">📸 0 photo(s) selected</div>
+
+      <input type="hidden" id="location" name="location" required />
+      <div class="info" id="locationInfo">📍 Location: Not yet captured</div>
+
+      <div class="warning" id="photoWarning" style="display: none;">⚠️ Please upload at least 1 photo to continue.</div>
+
+      <button type="submit" class="btn">Submit Report</button>
+    </form>
+
+    <!-- Success Message -->
+    <div id="successMsg" class="success-msg" style="display:none">
+      ✅ Report Submitted! 🎉<br />
+      You've earned <strong id="coinCount">+10</strong> Green Coins 🌿
+      <br /><br />
+      <button onclick="window.location.href='dashboard.html'" class="btn" style="background-color: #007bff;">← Back to Dashboard</button>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('reportForm');
+    const dropZone = document.getElementById('dropZone');
+    const locationInput = document.getElementById('location');
+    const locationInfo = document.getElementById('locationInfo');
+    const imagesInput = document.getElementById('images');
+    const photoCount = document.getElementById('photoCount');
+    const photoWarning = document.getElementById('photoWarning');
+    const previewContainer = document.getElementById('previewContainer');
+    const coinCount = document.getElementById('coinCount');
+
+    let photoFiles = [];
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        locationInput.value = `Lat: ${latitude}, Lng: ${longitude}`;
+        locationInfo.textContent = `📍 Location: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+      },
+      () => {
+        alert('Location access is required to report issues. Please allow location access.');
+      }
+    );
+
+    function updatePhotoDisplay() {
+      previewContainer.innerHTML = '';
+      photoFiles.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const div = document.createElement('div');
+          div.innerHTML = `<img src="${e.target.result}" alt="photo" /><button onclick="removePhoto(${index})">&times;</button>`;
+          previewContainer.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+      });
+
+      photoCount.textContent = `📸 ${photoFiles.length} photo(s) selected`;
+
+      if (photoFiles.length > 5) {
+        photoWarning.textContent = "⚠️ You can upload a maximum of 5 photos.";
+        photoWarning.style.display = 'block';
+        form.querySelector('button[type="submit"]').disabled = true;
+      } else {
+        photoWarning.style.display = 'none';
+        form.querySelector('button[type="submit"]').disabled = false;
+      }
+    }
+
+    function removePhoto(index) {
+      photoFiles.splice(index, 1);
+      updatePhotoDisplay();
+    }
+
+    imagesInput.addEventListener('change', (e) => {
+      const newFiles = Array.from(e.target.files);
+      photoFiles = [...photoFiles, ...newFiles].slice(0, 5);
+      updatePhotoDisplay();
+    });
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.style.backgroundColor = '#f1f1f1';
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.style.backgroundColor = 'transparent';
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const newFiles = Array.from(e.dataTransfer.files);
+      photoFiles = [...photoFiles, ...newFiles].slice(0, 5);
+      updatePhotoDisplay();
+      dropZone.style.backgroundColor = 'transparent';
+    });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const description = document.getElementById("description").value;
+
+    if (description && photoFiles.length === 0) {
+    photoWarning.textContent = "⚠️ Please upload at least 1 photo to continue.";
+    photoWarning.style.display = 'block';
+    return;
+    }
+
+    if (!locationInput.value) {
+    alert('📍 Location access required before submitting.');
+    return;
+    }
+
+    const coinsEarned = photoFiles.length * 5;
+    let currentCoins = parseInt(localStorage.getItem("greenCoins") || "0");
+    let totalCoins = currentCoins + coinsEarned;
+    localStorage.setItem("greenCoins", totalCoins);
+
+    // ✅ Save history if `saveCoinHistory` is available
+    if (typeof saveCoinHistory === "function") {
+    saveCoinHistory(coinsEarned);
+    }
+
+    coinCount.textContent = `+${coinsEarned}`;
+
+    form.style.display = 'none';
+    document.getElementById('successMsg').style.display = 'block';
+
+    // ✅ Hide top back button after submission
+    const backBtn = document.querySelector('.back-btn');
+    if (backBtn) backBtn.style.display = 'none';
+  });
+
+  </script>
+</body>
+</html>

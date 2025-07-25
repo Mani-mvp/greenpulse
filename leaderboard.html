@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Leaderboard - GreenPulse</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    async function fetchLeaderboard() {
+      const snapshot = await get(ref(db, 'users'));
+      if (snapshot.exists()) {
+        const users = snapshot.val();
+        const leaderboardArray = Object.values(users).sort((a, b) => b.correctReports - a.correctReports);
+
+        const tableBody = document.getElementById("leaderboard-body");
+        leaderboardArray.forEach((user, index) => {
+          const row = `
+            <tr class="bg-white bg-opacity-80 hover:bg-green-100 transition">
+              <td class="py-2 px-4 font-semibold">${index + 1}</td>
+              <td class="py-2 px-4">${user.name}</td>
+              <td class="py-2 px-4">${user.correctReports}</td>
+              <td class="py-2 px-4">${user.totalReports}</td>
+              <td class="py-2 px-4">${user.coins}</td>
+            </tr>`;
+          tableBody.innerHTML += row;
+        });
+      } else {
+        document.getElementById("leaderboard-body").innerHTML = "<tr><td colspan='5'>No users found</td></tr>";
+      }
+    }
+
+    window.onload = fetchLeaderboard;
+  </script>
+  <style>
+    body {
+      background-image: url('https://aicdn.picsart.com/6ceb4af1-5c4d-4ee7-a3af-dd6cf1da69e1.png'); /* 🔁 Replace with your image path */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+  </style>
+</head>
+<body class="bg-green-50 bg-opacity-90 min-h-screen px-6 py-8">
+
+  <!-- Back to Dashboard Button -->
+  <div class="mb-4">
+    <button onclick="window.location.href='dashboard.html'" class="flex items-center text-green-700 hover:text-green-900 font-semibold">
+      ← Back to Dashboard
+    </button>
+  </div>
+
+  <div class="max-w-4xl mx-auto bg-white bg-opacity-90 rounded-xl shadow-lg p-6">
+    <h1 class="text-3xl font-bold text-green-700 mb-6 text-center">🌿 GreenPulse Leaderboard</h1>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-center border border-green-200 rounded-lg overflow-hidden">
+        <thead class="bg-green-200 text-green-900">
+          <tr>
+            <th class="py-3 px-4">Rank</th>
+            <th class="py-3 px-4">Name</th>
+            <th class="py-3 px-4">Correct Reports</th>
+            <th class="py-3 px-4">Total Reports</th>
+            <th class="py-3 px-4">Coins</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-body" class="text-gray-800">
+          <!-- Dynamic rows will be inserted here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Profile</title>
+  <script type="module" src="profile.js"></script>
+</head>
+<body>
+
+  <!-- Profile Picture Display -->
+  <img id="profilePic" src="assets/default.jpg" alt="Profile Picture"
+       style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;" />
+
+  <!-- Upload New Picture -->
+  <input type="file" id="uploadPic" accept="image/*" />
+
+  <!-- User Info -->
+  <input type="text" id="name" placeholder="Name" />
+  <input type="text" id="email" placeholder="Email" />
+  <input type="text" id="phone" placeholder="Phone" />
+  <input type="text" id="address" placeholder="Address" />
+
+  <!-- Save Button -->
+  <button id="saveBtn">Save</button>
+
+</body>
+</html>

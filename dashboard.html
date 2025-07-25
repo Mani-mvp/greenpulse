@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GreenPulse Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-image: url('https://aicdn.picsart.com/199fe8fc-f78d-4812-a36d-2aec7a579472.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+    }
+
+    .glass-card {
+      background-color: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+    }
+
+    .modal-bg {
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+
+    .notification-dot {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 10px;
+      height: 10px;
+      background-color: red;
+      border-radius: 50%;
+    }
+
+    .profile-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 9999px;
+      object-fit: cover;
+      border: 2px solid #4CAF50;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body class="text-gray-800">
+
+  <!-- Top Navbar -->
+  <header class="flex justify-between items-center px-6 py-4 bg-white bg-opacity-90 shadow sticky top-0 z-10">
+    <div class="text-2xl font-semibold text-green-600">🌿 GreenPulse</div>
+    <div class="flex items-center gap-6 relative">
+      <button onclick="showCoins()" class="text-green-700 font-semibold">
+        🪙 Green Coins: <span id="coin-count">0</span>
+      </button>
+
+      <div class="relative">
+        <button onclick="showNotifications()" class="text-xl relative" id="bellBtn">🔔</button>
+        <span id="notification-dot" class="notification-dot hidden"></span>
+      </div>
+
+      <img id="nav-profile-pic" class="profile-icon" onclick="showProfile()" src="assets/default.jpg" alt="Profile" />
+    </div>
+  </header>
+
+  <!-- Dashboard Buttons -->
+  <section class="flex flex-col justify-center items-center min-h-[85vh] px-4 gap-6">
+    <a href="report.html" class="w-full max-w-sm">
+      <div class="glass-card rounded-lg shadow p-6 text-center hover:scale-105 transition cursor-pointer">
+        <div class="text-3xl mb-2">➕</div>
+        <div class="font-medium text-lg">Report an Issue</div>
+      </div>
+    </a>
+
+    <a href="leaderboard.html" class="w-full max-w-sm">
+      <div class="glass-card rounded-lg shadow p-6 text-center hover:scale-105 transition cursor-pointer">
+        <div class="text-3xl mb-2">🚀</div>
+        <div class="font-medium text-lg">Leaderboard</div>
+      </div>
+    </a>
+
+    <a href="recent-reports.html" class="w-full max-w-sm">
+      <div class="glass-card rounded-lg shadow p-6 text-center hover:scale-105 transition cursor-pointer">
+        <div class="text-3xl mb-2">📌</div>
+        <div class="font-medium text-lg">Recent Reports</div>
+      </div>
+    </a>
+  </section>
+
+  <!-- Coin History Modal -->
+  <div id="coinModal" class="hidden fixed inset-0 flex items-center justify-center modal-bg z-20">
+    <div class="bg-white p-6 rounded shadow w-80 text-center">
+      <h2 class="text-lg font-bold mb-4">🪙 Coin History</h2>
+      <ul id="coin-history">No history found.</ul>
+      <button onclick="closeModal('coinModal')" class="mt-4 bg-green-500 px-4 py-1 text-white rounded">Close</button>
+    </div>
+  </div>
+
+  <!-- Notifications Modal -->
+  <div id="notificationModal" class="hidden fixed inset-0 flex items-center justify-center modal-bg z-20">
+    <div class="bg-white p-6 rounded shadow w-80 text-center">
+      <h2 class="text-lg font-bold mb-4">🔔 Notifications</h2>
+      <ul id="notification-list">No new notifications.</ul>
+      <button onclick="closeModal('notificationModal')" class="mt-4 bg-green-500 px-4 py-1 text-white rounded">Close</button>
+    </div>
+  </div>
+
+  <!-- Profile Modal -->
+  <div id="profileModal" class="hidden fixed inset-0 flex items-center justify-center modal-bg z-30">
+    <div class="bg-white p-6 rounded shadow w-96 text-center">
+      <h2 class="text-lg font-bold mb-4">👤 Your Profile</h2>
+
+      <img id="profile-pic" src="assets/default.jpg" class="w-24 h-24 rounded-full mx-auto mb-4 border" alt="Profile" />
+      <input type="file" id="uploadPic" accept="image/*" class="mb-4" />
+
+      <label class="block mb-2 text-left">Name: <input class="border p-1 w-full" id="name" /></label>
+      <label class="block mb-2 text-left">Phone: <input class="border p-1 w-full" id="phone" /></label>
+      <label class="block mb-2 text-left">Email: <input class="border p-1 w-full" id="email" /></label>
+      <label class="block mb-4 text-left">Address: <input class="border p-1 w-full" id="address" /></label>
+
+      <div class="flex justify-end gap-2">
+        <button onclick="closeModal('profileModal')" class="bg-gray-400 text-white px-3 py-1 rounded">Cancel</button>
+        <button id="saveBtn" class="bg-green-600 text-white px-3 py-1 rounded">Save</button>
+      </div>
+
+      <button onclick="logout()" class="mt-4 text-red-600 underline">Logout</button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="coins.js"></script>
+  <script src="notification.js"></script>
+  <script type="module" src="profile.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const notifications = JSON.parse(localStorage.getItem("notifications") || "[]");
+      if (notifications.length > 0) {
+        document.getElementById("notification-dot").classList.remove("hidden");
+      }
+    });
+
+    function showCoins() {
+      document.getElementById("coinModal").classList.remove("hidden");
+      showCoinHistory(); // from coins.js
+    }
+
+    function showNotifications() {
+      document.getElementById("notificationModal").classList.remove("hidden");
+      document.getElementById("notification-dot").classList.add("hidden");
+      loadNotifications(); // from notification.js
+    }
+
+    function showProfile() {
+      document.getElementById("profileModal").classList.remove("hidden");
+      loadProfile(); // from profile.js
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add("hidden");
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+
+</html>
