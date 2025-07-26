@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,11 +9,22 @@
   <style>
     body {
       font-family: 'Poppins', sans-serif;
-      background-image: url('https://aicdn.picsart.com/199fe8fc-f78d-4812-a36d-2aec7a579472.png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
+      margin: 0;
+      padding: 0;
       min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .bg-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+      pointer-events: none; /* makes sure user can still click elements */
     }
 
     .glass-card {
@@ -48,6 +58,11 @@
 </head>
 
 <body class="text-gray-800">
+  <!-- 🌿 Background Video -->
+  <video autoplay muted loop playsinline class="bg-video">
+    <source src="https://videos.pexels.com/video-files/3141207/3141207-uhd_2560_1440_25fps.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
 
   <!-- Top Navbar -->
   <header class="flex justify-between items-center px-6 py-4 bg-white bg-opacity-90 shadow sticky top-0 z-10">
@@ -169,5 +184,4 @@
     }
   </script>
 </body>
-
 </html>

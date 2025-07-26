@@ -8,8 +8,20 @@
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: url('https://cdn-editing-temp.picsart.com/editing-temp-landings/306c9a38-03f0-49d4-99d2-4c36afab99f7.jpeg') no-repeat center center/cover;
       color: #333;
+      overflow-x: hidden;
+    }
+
+    /* 🎥 Background Video Styling */
+    .bg-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: -1;
+      pointer-events: none;
     }
 
     .container {
@@ -20,6 +32,7 @@
       border-radius: 15px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       position: relative;
+      z-index: 1;
     }
 
     h2 {
@@ -133,8 +146,12 @@
 </head>
 <body>
 
+  <!-- 🎥 Background Video -->
+  <video autoplay muted loop playsinline class="bg-video">
+    <source src="https://videos.pexels.com/video-files/20548607/20548607-hd_1920_1080_30fps.mp4" type="video/mp4">
+  </video>
+
   <div class="container">
-    <!-- Top Back Button -->
     <button class="back-btn" onclick="window.location.href='dashboard.html'">← Back</button>
 
     <h2>Report an Environmental Issue</h2>
@@ -167,7 +184,6 @@
       <button type="submit" class="btn">Submit Report</button>
     </form>
 
-    <!-- Success Message -->
     <div id="successMsg" class="success-msg" style="display:none">
       ✅ Report Submitted! 🎉<br />
       You've earned <strong id="coinCount">+10</strong> Green Coins 🌿
@@ -252,42 +268,39 @@
       dropZone.style.backgroundColor = 'transparent';
     });
 
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
 
-    const description = document.getElementById("description").value;
+      const description = document.getElementById("description").value;
 
-    if (description && photoFiles.length === 0) {
-    photoWarning.textContent = "⚠️ Please upload at least 1 photo to continue.";
-    photoWarning.style.display = 'block';
-    return;
-    }
+      if (description && photoFiles.length === 0) {
+        photoWarning.textContent = "⚠️ Please upload at least 1 photo to continue.";
+        photoWarning.style.display = 'block';
+        return;
+      }
 
-    if (!locationInput.value) {
-    alert('📍 Location access required before submitting.');
-    return;
-    }
+      if (!locationInput.value) {
+        alert('📍 Location access required before submitting.');
+        return;
+      }
 
-    const coinsEarned = photoFiles.length * 5;
-    let currentCoins = parseInt(localStorage.getItem("greenCoins") || "0");
-    let totalCoins = currentCoins + coinsEarned;
-    localStorage.setItem("greenCoins", totalCoins);
+      const coinsEarned = photoFiles.length * 5;
+      let currentCoins = parseInt(localStorage.getItem("greenCoins") || "0");
+      let totalCoins = currentCoins + coinsEarned;
+      localStorage.setItem("greenCoins", totalCoins);
 
-    // ✅ Save history if `saveCoinHistory` is available
-    if (typeof saveCoinHistory === "function") {
-    saveCoinHistory(coinsEarned);
-    }
+      if (typeof saveCoinHistory === "function") {
+        saveCoinHistory(coinsEarned);
+      }
 
-    coinCount.textContent = `+${coinsEarned}`;
+      coinCount.textContent = `+${coinsEarned}`;
 
-    form.style.display = 'none';
-    document.getElementById('successMsg').style.display = 'block';
+      form.style.display = 'none';
+      document.getElementById('successMsg').style.display = 'block';
 
-    // ✅ Hide top back button after submission
-    const backBtn = document.querySelector('.back-btn');
-    if (backBtn) backBtn.style.display = 'none';
-  });
-
+      const backBtn = document.querySelector('.back-btn');
+      if (backBtn) backBtn.style.display = 'none';
+    });
   </script>
 </body>
 </html>

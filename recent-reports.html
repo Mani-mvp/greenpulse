@@ -7,24 +7,37 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
   <style>
     body {
       font-family: 'Poppins', sans-serif;
-      background-image: url('https://images5.alphacoders.com/132/1323577.png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
+      background: transparent;
+    }
+
+    #bg-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: -1;
     }
   </style>
 </head>
-<body class="min-h-screen text-gray-800">
+<body class="min-h-screen text-gray-800 relative">
 
-  <!-- Overlay to make content readable over background -->
+  <!-- 🌄 Background Video -->
+  <video id="bg-video" autoplay muted loop playsinline>
+    <source src="https://videos.pexels.com/video-files/33113400/14114346_1920_1080_30fps.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <!-- Overlay to make content readable -->
   <div class="bg-white bg-opacity-80 min-h-screen">
     
     <!-- Header -->
     <header class="bg-white bg-opacity-90 shadow p-4 flex items-center sticky top-0 z-10">
-      <!-- Back Button on Left -->
       <a href="dashboard.html" class="text-green-700 font-medium hover:text-green-900 flex items-center">
         ← Back
       </a>
@@ -39,6 +52,7 @@
   </div>
 
   <script>
+    // 🧩 Replace with your Firebase project credentials
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
       authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -51,7 +65,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    const userId = "test_user_123"; // use auth.currentUser.uid in real app
+    const userId = "test_user_123"; // Replace with auth.currentUser.uid in real app
     const reportsContainer = document.getElementById("reportsContainer");
 
     db.collection("reports")
@@ -67,30 +81,33 @@
 
         snapshot.forEach(doc => {
           const data = doc.data();
-          const date = new Date(data.timestamp?.seconds * 1000);
+          const date = new Date((data.timestamp?.seconds || 0) * 1000);
+
           const statusColor = {
             "Pending": "text-yellow-600",
             "Resolved": "text-green-600",
             "Failed": "text-red-600"
           }[data.status] || "text-gray-600";
 
-          const images = data.images?.map(url =>
-            `<img src="${url}" class="h-24 w-24 object-cover rounded border" alt="Report Image" />`
-          ).join("") || "";
+          const images = (data.images || []).map(url =>
+            `<img src="${url}" class="h-24 w-24 object-cover rounded border shadow-sm" alt="Report Image" />`
+          ).join("") || "<p class='text-gray-400 italic'>No images</p>";
 
           reportsContainer.innerHTML += `
-            <div class="bg-white bg-opacity-90 shadow-md rounded-lg p-4">
+            <div class="bg-white bg-opacity-90 shadow-md rounded-lg p-4 backdrop-blur-sm">
               <div class="flex items-center justify-between mb-2">
-                <div class="font-semibold">${data.address || "No address provided"}</div>
-                <div class="${statusColor} font-bold">${data.status || "Unknown"}</div>
+                <div class="font-semibold truncate max-w-[70%]">${data.address || "No address provided"}</div>
+                <div class="${statusColor} font-bold text-sm">${data.status || "Unknown"}</div>
               </div>
               <div class="flex gap-2 overflow-x-auto pb-2">
                 ${images}
               </div>
-              <div class="text-sm text-gray-500 mt-2">${date.toLocaleDateString()} ${date.toLocaleTimeString()}</div>
+              <div class="text-xs text-gray-500 mt-2">${date.toLocaleDateString()} ${date.toLocaleTimeString()}</div>
             </div>
           `;
         });
+      }, err => {
+        reportsContainer.innerHTML = `<p class='text-red-500'>Error loading reports: ${err.message}</p>`;
       });
   </script>
 </body>

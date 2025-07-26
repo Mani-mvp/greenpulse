@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <title>Leaderboard - GreenPulse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -22,54 +24,75 @@
     const db = getDatabase(app);
 
     async function fetchLeaderboard() {
-      const snapshot = await get(ref(db, 'users'));
-      if (snapshot.exists()) {
-        const users = snapshot.val();
-        const leaderboardArray = Object.values(users).sort((a, b) => b.correctReports - a.correctReports);
-
+      try {
+        const snapshot = await get(ref(db, 'users'));
         const tableBody = document.getElementById("leaderboard-body");
-        leaderboardArray.forEach((user, index) => {
-          const row = `
-            <tr class="bg-white bg-opacity-80 hover:bg-green-100 transition">
-              <td class="py-2 px-4 font-semibold">${index + 1}</td>
-              <td class="py-2 px-4">${user.name}</td>
-              <td class="py-2 px-4">${user.correctReports}</td>
-              <td class="py-2 px-4">${user.totalReports}</td>
-              <td class="py-2 px-4">${user.coins}</td>
-            </tr>`;
-          tableBody.innerHTML += row;
-        });
-      } else {
-        document.getElementById("leaderboard-body").innerHTML = "<tr><td colspan='5'>No users found</td></tr>";
+
+        if (snapshot.exists()) {
+          const users = snapshot.val();
+          const leaderboardArray = Object.values(users).sort((a, b) => (b.correctReports || 0) - (a.correctReports || 0));
+          tableBody.innerHTML = "";
+
+          leaderboardArray.forEach((user, index) => {
+            const row = `
+              <tr class="bg-white bg-opacity-80 hover:bg-green-100 transition">
+                <td class="py-2 px-4 font-semibold">${index + 1}</td>
+                <td class="py-2 px-4">${user.name || 'Anonymous'}</td>
+                <td class="py-2 px-4">${user.correctReports || 0}</td>
+                <td class="py-2 px-4">${user.totalReports || 0}</td>
+                <td class="py-2 px-4">${user.coins || 0}</td>
+              </tr>`;
+            tableBody.innerHTML += row;
+          });
+        } else {
+          tableBody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-gray-500">No users found.</td></tr>`;
+        }
+      } catch (error) {
+        console.error("❌ Error fetching leaderboard:", error);
+        document.getElementById("leaderboard-body").innerHTML =
+          `<tr><td colspan="5" class="py-4 text-center text-red-500">Failed to load data.</td></tr>`;
       }
     }
 
     window.onload = fetchLeaderboard;
   </script>
+
   <style>
-    body {
-      background-image: url('https://aicdn.picsart.com/6ceb4af1-5c4d-4ee7-a3af-dd6cf1da69e1.png'); /* 🔁 Replace with your image path */
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
+    /* 🔁 Fullscreen Background Video */
+    #bg-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: -1;
     }
   </style>
 </head>
-<body class="bg-green-50 bg-opacity-90 min-h-screen px-6 py-8">
 
-  <!-- Back to Dashboard Button -->
+<body class="relative min-h-screen bg-transparent px-4 py-6 sm:px-6">
+
+  <!-- 🔁 Smooth Background Video -->
+  <video id="bg-video" autoplay muted loop playsinline>
+    <source src="https://videos.pexels.com/video-files/10469563/10469563-uhd_2560_1440_25fps.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <!-- 🔙 Back Button -->
   <div class="mb-4">
     <button onclick="window.location.href='dashboard.html'" class="flex items-center text-green-700 hover:text-green-900 font-semibold">
       ← Back to Dashboard
     </button>
   </div>
 
-  <div class="max-w-4xl mx-auto bg-white bg-opacity-90 rounded-xl shadow-lg p-6">
+  <!-- 🏆 Leaderboard Card -->
+  <div class="max-w-5xl mx-auto bg-white bg-opacity-95 rounded-xl shadow-xl p-6">
     <h1 class="text-3xl font-bold text-green-700 mb-6 text-center">🌿 GreenPulse Leaderboard</h1>
+
     <div class="overflow-x-auto">
-      <table class="min-w-full text-center border border-green-200 rounded-lg overflow-hidden">
-        <thead class="bg-green-200 text-green-900">
+      <table class="min-w-full text-center border border-green-200 rounded-lg overflow-hidden shadow-sm">
+        <thead class="bg-green-200 text-green-900 text-sm">
           <tr>
             <th class="py-3 px-4">Rank</th>
             <th class="py-3 px-4">Name</th>
@@ -78,11 +101,12 @@
             <th class="py-3 px-4">Coins</th>
           </tr>
         </thead>
-        <tbody id="leaderboard-body" class="text-gray-800">
-          <!-- Dynamic rows will be inserted here -->
+        <tbody id="leaderboard-body" class="text-gray-800 text-sm">
+          <!-- 🧠 Dynamic data will be added here -->
         </tbody>
       </table>
     </div>
   </div>
+
 </body>
 </html>
