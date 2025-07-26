@@ -4,43 +4,61 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>GreenPulse Login</title>
-  <link rel="stylesheet" href="style.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    body {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-      overflow: hidden;
+    * {
+      box-sizing: border-box;
     }
-    .background {
-      position: relative;
-      background-color: rgba(255, 255, 255, 0.85);
-      min-height: 100vh;
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1rem;
-      z-index: 1;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      position: relative;
+      background-color: black;
+    }
+
+    #bg-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+      pointer-events: none;
     }
 
     .login-card {
-      background: white;
+      background-color: rgba(255, 255, 255, 0.92);
       padding: 2rem;
       border-radius: 1rem;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
       width: 350px;
-      z-index: 2;
+      z-index: 1;
     }
 
     .logo {
       font-size: 24px;
       font-weight: bold;
       margin-bottom: 10px;
+      text-align: center;
     }
 
     .subtitle {
       font-size: 14px;
       margin-bottom: 10px;
+      text-align: center;
     }
 
     #showOTP {
@@ -60,15 +78,25 @@
       width: 100%;
       padding: 10px;
       margin-top: 5px;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
       border-radius: 6px;
       border: 1px solid #ccc;
+    }
+
+    .input-error {
+      color: #e74c3c;
+      font-size: 13px;
+      margin-bottom: 6px;
+      min-height: 18px;
+      text-align: left;
+      font-weight: 500;
     }
 
     .otp-box {
       display: flex;
       gap: 5px;
       margin-bottom: 10px;
+      justify-content: center;
     }
 
     .otp-box input {
@@ -80,18 +108,30 @@
       border-radius: 6px;
     }
 
+    .btn-group {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
     .btn-group button {
-      width: 48%;
+      flex: 1;
       padding: 10px;
       margin-top: 10px;
       border: none;
       border-radius: 6px;
       font-weight: 600;
+      cursor: pointer;
     }
 
     .send-btn {
       background-color: #4CAF50;
       color: white;
+    }
+
+    .send-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
 
     .login-btn {
@@ -121,6 +161,7 @@
       border: none;
       border-radius: 6px;
       font-weight: 600;
+      cursor: pointer;
     }
 
     .signup {
@@ -149,56 +190,68 @@
     .autofill-btn:hover {
       text-decoration: underline;
     }
+
+    @media (max-width: 400px) {
+      .login-card {
+        width: 90%;
+        padding: 1.5rem;
+      }
+    }
   </style>
 </head>
 <body>
-  <!-- 🧾 Login Card with overlay -->
-  <div class="background">
-    <div class="login-card">
-      <div class="logo">🌿 GreenPulse</div>
-      <h2>🔐 Welcome Back, Eco Hero!</h2>
-      <p class="subtitle">Login to report issues, track them & make a difference.</p>
 
-      <!-- ✅ OTP display area -->
-      <div id="showOTP"></div>
+  <!-- Background Video -->
+  <video id="bg-video" autoplay muted loop playsinline>
+    <source src="https://videos.pexels.com/video-files/29717425/12777808_2560_1440_30fps.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
 
-      <label for="mobile" class="input-label">📱 Mobile Number / Email</label>
-      <input type="text" id="mobile" placeholder="Enter mobile number or email" />
+  <!-- Login Card -->
+  <div class="login-card">
+    <div class="logo">🌿 GreenPulse</div>
+    <h2>🔐 Welcome Back, Eco Hero!</h2>
+    <p class="subtitle">Login to report issues, track them & make a difference.</p>
+    <div id="showOTP"></div>
 
-      <label class="input-label">🔒 Enter OTP</label>
-      <div class="otp-box">
-        <input type="text" maxlength="1">
-        <input type="text" maxlength="1">
-        <input type="text" maxlength="1">
-        <input type="text" maxlength="1">
-        <input type="text" maxlength="1">
-        <input type="text" maxlength="1">
-      </div>
+    <label for="mobile" class="input-label">📱 Mobile Number / Email</label>
+    <input type="text" id="mobile" placeholder="Enter mobile number or email" autocomplete="off" />
+    <div id="inputError" class="input-error"></div>
 
-      <div class="resend-area">
-        <div id="resendTimer">⏱ Waiting to send OTP...</div>
-        <button class="autofill-btn" id="autoFill">Auto Fill</button>
-      </div>
-
-      <div class="btn-group">
-        <button class="send-btn" id="sendOTP">Send OTP</button>
-        <button class="login-btn" id="verifyOTP">Verify & Login</button>
-      </div>
-
-      <div class="options">
-        <label><input type="checkbox"> Remember me</label>
-        <a href="#">Forgot Password?</a>
-      </div>
-
-      <div class="or-divider">─────── OR ───────</div>
-
-      <button class="google-btn">🔵 Login with Google</button>
-
-      <p class="signup">Don’t have an account? <a href="#">Sign Up</a></p>
+    <label class="input-label">🔒 Enter OTP</label>
+    <div class="otp-box">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
     </div>
+
+    <div class="resend-area">
+      <div id="resendTimer">⏱ Waiting to send OTP...</div>
+      <button class="autofill-btn" id="autoFill">Auto Fill</button>
+    </div>
+
+    <div class="btn-group">
+      <button class="send-btn" id="sendOTP" disabled>Send OTP</button>
+      <button class="login-btn" id="verifyOTP">Verify & Login</button>
+    </div>
+
+    <div class="options">
+      <label><input type="checkbox"> Remember me</label>
+      <a href="#">Forgot Password?</a>
+    </div>
+
+    <div class="or-divider">─────── OR ───────</div>
+    <button class="google-btn">🔵 Login with Google</button>
+    <p class="signup">Don’t have an account? <a href="#">Sign Up</a></p>
   </div>
 
-  <!-- ✅ JS OTP Logic -->
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+ 
   <script>
     const otpInputs = document.querySelectorAll('.otp-box input');
     const sendBtn = document.getElementById('sendOTP');
@@ -206,8 +259,10 @@
     const resendTimer = document.getElementById('resendTimer');
     const autoFillBtn = document.getElementById('autoFill');
     const showOTP = document.getElementById('showOTP');
+    const mobileInput = document.getElementById('mobile');
+    const inputError = document.getElementById('inputError');
 
-    let generatedOTP = "";
+
     let timer = 45;
     let countdown;
 
@@ -217,12 +272,9 @@
           otpInputs[index + 1].focus();
         }
       });
-
       input.addEventListener('keydown', (e) => {
-        if (e.key === "Backspace") {
-          if (input.value === "" && index > 0) {
-            otpInputs[index - 1].focus();
-          }
+        if (e.key === "Backspace" && input.value === "" && index > 0) {
+          otpInputs[index - 1].focus();
         }
       });
     });
@@ -265,6 +317,15 @@
     });
 
     verifyBtn.addEventListener('click', () => {
+      const value = mobileInput.value.trim();
+      const phoneRegex = /^\d{10}$/;
+      const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+
+      if (!value || (!phoneRegex.test(value) && !gmailRegex.test(value))) {
+        alert("❌ Please enter a valid 10-digit mobile number or Gmail address.");
+        return;
+      }
+
       const enteredOTP = Array.from(otpInputs).map(i => i.value).join('');
       if (enteredOTP === generatedOTP) {
         const statusMsg = document.createElement("div");
@@ -278,6 +339,29 @@
         alert("❌ Invalid OTP. Please try again.");
       }
     });
+
+    function validateInput() {
+      const value = mobileInput.value.trim();
+      let valid = false;
+      inputError.textContent = "";
+
+      const phoneRegex = /^\d{10}$/;
+      const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+
+      if (!value) {
+        inputError.textContent = "Please enter your mobile number or email.";
+      } else if (phoneRegex.test(value) || gmailRegex.test(value)) {
+        valid = true;
+      } else {
+        inputError.textContent = "Enter a 10-digit number or valid Gmail address.";
+      }
+
+      sendBtn.disabled = !valid;
+      sendBtn.style.opacity = valid ? "1" : "0.6";
+    }
+
+    mobileInput.addEventListener('input', validateInput);
+    window.addEventListener('DOMContentLoaded', validateInput);
   </script>
 </body>
 </html>
