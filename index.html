@@ -12,27 +12,6 @@
       font-family: 'Poppins', sans-serif;
       overflow: hidden;
     }
-    #bg-video {
-      position: fixed;
-      top: 0;
-      left: 0;
-      min-width: 100%;
-      min-height: 100%;
-      object-fit: cover;
-      z-index: -1;
-    }
-    .background {
-      position: relative;
-      background-color: rgba(255, 255, 255, 0.85);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-      z-index: 1;
-    }
-
-    /* 📱 Semi-transparent overlay */
     .background {
       position: relative;
       background-color: rgba(255, 255, 255, 0.85);
@@ -173,13 +152,6 @@
   </style>
 </head>
 <body>
-  <!-- 🎬 Background Video -->
-    <video id="bg-video" autoplay muted loop playsinline>
-      <source src="https://cdn.coverr.co/videos/coverr-beautiful-mountains-and-river-1133/1080p.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
-
-
   <!-- 🧾 Login Card with overlay -->
   <div class="background">
     <div class="login-card">
